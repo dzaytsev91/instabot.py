@@ -110,6 +110,9 @@ class InstaBot:
                  password,
                  like_per_day=1000,
                  media_max_like=50,
+                 max_followers=0,
+                 min_followers=0,
+                 max_follows=0,
                  media_min_like=0,
                  follow_per_day=0,
                  follow_time=5 * 60 * 60,
@@ -144,6 +147,9 @@ class InstaBot:
         self.tag_blacklist = tag_blacklist
         self.unfollow_whitelist = unfollow_whitelist
         self.comment_list = comment_list
+        self.max_followers = max_followers
+        self.min_followers = min_followers
+        self.max_follows = max_follows
 
         self.time_in_day = 24 * 60 * 60
         # Like
@@ -402,6 +408,43 @@ class InstaBot:
                                 self.write_log(
                                     "Couldn't find caption - not liking")
                                 return False
+
+                            if self.max_followers or self.min_followers or self.max_follows:
+                                check_media = self.s.get(self.url_media_detail % self.media_by_tag[i]['code'])
+                                if check_media.status_code != 200:
+                                    self.write_log(
+                                        "Cannot get data from request, it returned %d status"
+                                        % check_media.status_code)
+                                    return False
+                                all_data = json.loads(check_media.text)
+                                username = all_data['graphql']['shortcode_media']['owner']['username']
+                                user_request = self.s.get(self.url_user_detail % username)
+                                if user_request.status_code != 200:
+                                    self.write_log(
+                                        "Cannot get data from request, it returned %d status"
+                                        % check_media.status_code)
+                                    return False
+                                user_json = json.loads(user_request.text)
+                                followed_by = user_json['user']['followed_by']['count']
+                                follows = user_json['user']['follows']['count']
+
+                                if self.max_followers and followed_by > self.max_followers:
+                                    self.write_log(
+                                        "Not liking media, number of followers exceeds limit: %d"
+                                        % followed_by)
+                                    return False
+
+                                if self.min_followers and followed_by < self.min_followers:
+                                    self.write_log(
+                                        "Not liking media, user has too few subscribers.: %d"
+                                        % followed_by)
+                                    return False
+
+                                if self.max_follows and follows > self.max_follows:
+                                    self.write_log(
+                                        "Not liking media, user follows too many.: %d"
+                                        % follows)
+                                    return False
 
                             log_string = "Trying to like media: %s" % \
                                          (self.media_by_tag[i]['id'])

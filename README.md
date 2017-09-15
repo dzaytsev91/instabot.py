@@ -73,6 +73,9 @@ bot = InstaBot('login', 'password',
 | like_per_day         | int | how many likes the bot does in 1 day                 | 1000                             | 500                                             |
 | media_max_like       | int | don't like if media has more than ... likes          | 0                                | 100                                             |
 | media_min_like       | int | don't like if media has less than ... likes          | 0                                | 5                                               |
+| max_followers        | int | don't like if user has more than ... followers       | 0                                | 200                                             |
+| min_followers        | int | don't like if user has fewer than ... followers      | 0                                | 200                                             |
+| max_follows          | int | don't like if user has more than ... follows         | 0                                | 200                                             |
 | follow_per_day       | int | how many users to follow in 1 day                    | 0                                | 100                                             |
 | follow_time          | int | how many times passes before the  bot unfollows a followed user (sec) | 5 * 60 * 60     | 60 * 60                                         |
 | unfollow_per_day     | int | how many user unfollows the bot does in day          | 0                                | 100                                             |
